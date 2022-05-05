@@ -39,6 +39,7 @@ namespace Kinoteatr.Controllers
                 var result = await _userManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
+                    await _userManager.AddToRoleAsync(user, "user");
                     // установка куки
                     await _signInManager.SignInAsync(user, false);
                     var msg = new
@@ -128,13 +129,33 @@ namespace Kinoteatr.Controllers
         public async Task<IActionResult> LogisAuthenticatedOff()
         {
             Viewer usr = await GetCurrentUserAsync();
-            var message = usr == null ? "Вы Гость. Пожалуйста, выполните вход." : "Вы вошли как: " + usr.UserName;
+            //var message = usr == null ? "Вы Гость. Пожалуйста, выполните вход." : "Вы вошли как: " + usr.UserName;
+            //var msg = new
+            //{
+            //    message
+            //};
+            //return Ok(msg);
+
+            string role = "";
+            string message = "Вы Гость. Пожалуйста, выполните вход.";
+            if (usr != null) 
+            {
+                message = "Вы вошли как: " + usr.UserName;
+                if (await _userManager.IsInRoleAsync(usr, "admin"))
+                    role = "admin";
+                else 
+                    role = "user";
+            }
+
             var msg = new
             {
-                message
+                message = message,
+                role = role
             };
+
             return Ok(msg);
         }
+
         private Task<Viewer> GetCurrentUserAsync() => _userManager.GetUserAsync(HttpContext.User);
     }
 }

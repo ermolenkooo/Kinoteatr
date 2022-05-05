@@ -10,6 +10,7 @@ using System;
 using DAL.Entities;
 using DAL.Repository;
 using BLL;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Kinoteatr.Controllers
 {
@@ -57,6 +58,7 @@ namespace Kinoteatr.Controllers
             return Ok(film);
         }
 
+        [Authorize(Roles = "admin")]
         [HttpPost]
         public IActionResult Create([FromBody] FilmModel film)
         {
@@ -70,6 +72,7 @@ namespace Kinoteatr.Controllers
             return CreatedAtAction("GetFilm", new { id = film.FilmId }, film);
         }
 
+        [Authorize(Roles = "admin")]
         [HttpPut("{id}")]
         public IActionResult Update([FromRoute] int id, [FromBody] FilmModel film)
         {
@@ -92,6 +95,7 @@ namespace Kinoteatr.Controllers
             return NoContent();
         }
 
+        [Authorize(Roles = "admin")]
         [HttpDelete("{id}")]
         public IActionResult Delete([FromRoute] int id)
         {

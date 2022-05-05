@@ -1,5 +1,7 @@
 ﻿import React, { Component } from 'react';
 import ReactDOM from 'react-dom'
+import { ModalEdit } from './ModalEdit'
+import { ModalAdd } from './ModalAdd';
 
 export class Film extends React.Component {
 
@@ -32,8 +34,10 @@ export class Film extends React.Component {
                         <h5>Страна: {this.props.country}</h5>
                         <h5>Хронометраж: {this.state.data.timing}</h5>
                         <p>
-                            <button className="btn btn-outline-success" onClick={this.onClickEdit} style={{ marginRight: '10px' }}>Изменить</button>
-                            <button className="btn btn-outline-success" onClick={this.onClick}>Удалить</button>
+                            <ModalEdit onFilmSubmit={this.props.onUpdate} film={this.state.data} />
+                            <p></p>
+                            {/*<button className="btn btn-outline-success" onClick={this.onClickEdit} style={{ marginRight: '10px' }}>Изменить</button>*/}
+                            <button className="btn btn-outline-success" onClick={this.onClick} style={{ marginRight: '10px' }}>Удалить</button>
                         </p>
                     </td>
                 </tr>
@@ -242,10 +246,10 @@ export class FilmsList extends React.Component {
             xhr.setRequestHeader("Content-Type", "application/json");
             xhr.onload = function () {
                 this.loadData();
-                ReactDOM.render(
-                    <p></p>,
-                    document.getElementById("foredit")
-                );
+                //ReactDOM.render(
+                //    <p></p>,
+                //    document.getElementById("foredit")
+                //);
             }.bind(this);
             xhr.send(JSON.stringify(film));
         }
@@ -258,12 +262,11 @@ export class FilmsList extends React.Component {
         var mycountries = this.state.countries;
         return (
             <div>
-                <FilmForm onFilmSubmit={this.onAddFilm} />
+                <ModalAdd onFilmSubmit={this.onAddFilm} />
                 <div id="foredit"></div>
                 <h2>Список фильмов</h2>
                 <div>
                     {
-
                         this.state.films.map(function (film) {
                             var mygenre, mycountry;
                             var i = 0;

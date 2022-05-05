@@ -7,22 +7,16 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Hosting;
-//using Kinoteatr.Models;
 using BLL.Interfaces;
 using BLL;
 using DAL;
 using DAL.Interfaces;
 using DAL.Repository;
 using System;
-using Microsoft.Extensions.Logging;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Text.Json;
 using Microsoft.AspNetCore.Identity;
-//using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace Kinoteatr
 {
@@ -31,6 +25,53 @@ namespace Kinoteatr
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+        }
+
+        private async Task CreateUserRoles(IServiceProvider serviceProvider)
+        {
+            var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+            var userManager = serviceProvider.GetRequiredService<UserManager<DAL.Entities.Viewer>>();
+            // Создание ролей администратора и пользователя
+            if (await roleManager.FindByNameAsync("admin") == null)
+            {
+                await roleManager.CreateAsync(new IdentityRole("admin"));
+            }
+            if (await roleManager.FindByNameAsync("user") == null)
+            {
+                await roleManager.CreateAsync(new IdentityRole("user"));
+            }
+            // Создание Администратора
+            string adminEmail = "admin@mail.com";
+            string adminPassword = "Aa123456!";
+            if (await userManager.FindByNameAsync(adminEmail) == null)
+            {
+                DAL.Entities.Viewer admin = new DAL.Entities.Viewer
+                {
+                    Email = adminEmail,
+                    UserName = adminEmail
+                };
+                IdentityResult result = await userManager.CreateAsync(admin, adminPassword);
+                if (result.Succeeded)
+                {
+                    await userManager.AddToRoleAsync(admin, "admin");
+                }
+            }
+            // Создание Пользователя
+            string userEmail = "user@mail.com";
+            string userPassword = "Aa123456!";
+            if (await userManager.FindByNameAsync(userEmail) == null)
+            {
+                DAL.Entities.Viewer user = new DAL.Entities.Viewer
+                {
+                    Email = userEmail,
+                    UserName = userEmail
+                };
+                IdentityResult result = await userManager.CreateAsync(user, userPassword);
+                if (result.Succeeded)
+                {
+                    await userManager.AddToRoleAsync(user, "user");
+                }
+            }
         }
 
         public IConfiguration Configuration { get; }
@@ -58,12 +99,32 @@ namespace Kinoteatr
             {
                 configuration.RootPath = "ClientApp/build";
             });
+
+            services.ConfigureApplicationCookie(options =>
+            {
+                options.Cookie.Name = "SimpleWebApp";
+                options.LoginPath = "/";
+                options.AccessDeniedPath = "/";
+                options.LogoutPath = "/";
+                options.Events.OnRedirectToLogin = context =>
+                {
+                    context.Response.StatusCode = 401;
+                    return Task.CompletedTask;
+                };
+                options.Events.OnRedirectToAccessDenied = context =>
+                {
+                    context.Response.StatusCode = 401;
+                    return Task.CompletedTask;
+                };
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory, IServiceProvider services)
         {
             app.UseAuthentication();
+
+            CreateUserRoles(services).Wait();
 
             if (env.IsDevelopment())
             {

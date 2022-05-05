@@ -5,6 +5,7 @@ import { FilmsList } from './FilmsList';
 //import ReactDOM from 'react-dom'
 import { ModalComponent } from './ModalComponent';
 import { ModalLogIn } from './ModalLogIn';
+import { ModalAdd } from './ModalAdd';
 
 
 export class Home extends Component {
@@ -12,10 +13,11 @@ export class Home extends Component {
 
   render () {
       return (
-          <div >
+          <div>
               <ModalComponent />
               <p></p>
               <ModalLogIn />
+              {/*<ModalAdd />*/}
               <FilmsList apiUrl="/api/films" />
           </div>
     );
