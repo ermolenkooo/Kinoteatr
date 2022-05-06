@@ -1,11 +1,49 @@
 ﻿import React, { Component } from 'react';
 import ReactDOM from 'react-dom'
 
+export class Place extends React.Component {
+
+    constructor(props) {
+        super(props);
+        this.state = { data: props.ticket, clicked: false };
+        this.Click = this.Click.bind(this);
+    }
+
+    onClick(e) {
+        this.setState({ clicked: !this.state.clicked });
+        this.forceUpdate();
+    }
+    render() {
+        //тут прописать если стутус 0 то рисуем неактивную кнопку иначе если кликд фалсе то зеленая если тру другого цвета какого хэзэ
+        return <button className="btn btn-success" onClick={ this.Click() } style={{ borderRadius: '20px', width: '40px', height: '40px' }}>{ this.state.data.place }</button>
+    }
+}
+ //класс ряда где будет столько-то плэйсов в ряд а ряды будут лежать в модальном окне фильма?? что делать как делать помогите 
+
 export class Film extends React.Component {
 
     constructor(props) {
         super(props);
         this.state = { data: props.film };
+        this.Tickets = this.Tickets.bind(this);
+    }
+    Tickets() {
+        var tickets = [];
+        var xhr = new XMLHttpRequest();
+        xhr.open("get", "/api/tickets/", true);
+        xhr.onload = function () {
+            console.log(xhr.responseText);
+            var data = JSON.parse(xhr.responseText);
+            tickets = data;
+        }.bind(this);
+        xhr.send();
+
+        let maxrow = 0;
+        let i = 0;
+        for (i in tickets) {
+            if (tickets[i].row > maxrow)
+                maxrow = tickets[i].row;
+        }
     }
     render() {
         return <div>
