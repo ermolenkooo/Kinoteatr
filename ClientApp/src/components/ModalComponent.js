@@ -11,7 +11,6 @@ export class ModalComponent extends React.Component {
         this.handleChangePassword = this.handleChangePassword.bind(this);
         this.handleChangePasswordConfirm = this.handleChangePasswordConfirm.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
-        //this.ParseResponse = this.ParseResponse.bind(this);
     }
 
     toggle() {
@@ -28,12 +27,6 @@ export class ModalComponent extends React.Component {
     handleChangePasswordConfirm(event) {
         this.setState({ passwordConfirm: event.target.value });
     }
-    //ParseResponse(e) {
-    //    document.querySelector("#formError").innerHTML.value = "";
-    //    let response = JSON.parse(e.responseText);
-    //    if (response.error.lenght > 0)
-    //        document.querySelector("#formError").innerHTML.value = response.error[0];
-    //}
     handleSubmit(e) {
         e.preventDefault();
         var Email = this.state.email.trim();
@@ -89,8 +82,8 @@ export class ModalComponent extends React.Component {
                         </ModalBody>
 
                         <ModalFooter>
-                            <input type="submit" value="Submit" color="success" className="btn btn-success" />
-                            <Button color="danger" onClick={this.toggle}>Cancel</Button>
+                            <input type="submit" value="Зарегистироваться" color="success" className="btn btn-success" />
+                            <Button color="danger" onClick={this.toggle}>Отмена</Button>
                         </ModalFooter>
                     </form>
                 </Modal>

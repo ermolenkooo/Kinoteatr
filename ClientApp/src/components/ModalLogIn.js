@@ -32,7 +32,7 @@ export class ModalLogIn extends React.Component {
             let myObj = "";
             myObj = request.responseText !== "" ?
                 JSON.parse(request.responseText) : {};
-            document.getElementById("msg").innerHTML = myObj.message;
+            //document.getElementById("msg").innerHTML = myObj.message;
         }.bind(this);
         request.send();
     }
@@ -56,6 +56,8 @@ export class ModalLogIn extends React.Component {
                     alert(content.message);
                     this.toggle();
                     this.getCurrentUser();
+                    this.props.onCheck();
+                    window.location.reload();
                 }
             }.bind(this);
             xhr.send(JSON.stringify({ email: Email, password: Password }));
@@ -73,6 +75,7 @@ export class ModalLogIn extends React.Component {
             let content = request.response;
             alert(content.message);
             this.getCurrentUser();
+            this.props.onCheck();
         }.bind(this);
         request.send();
     }
@@ -80,9 +83,9 @@ export class ModalLogIn extends React.Component {
     render() {
         return (
             <div>
-                <div id="msg">Вы Гость. Пожалуйста, выполните вход.</div>
-                <Button color="success" onClick={this.toggle}>Войти</Button>
-                <Button color="danger" onClick={this.LogOut}>Выйти</Button>
+                {/*<div id="msg">Вы Гость. Пожалуйста, выполните вход.</div>*/}
+                <Button color="success" onClick={this.toggle} style={{ marginRight: '10px' }}>Войти</Button>
+                {/*<Button color="danger" onClick={this.LogOut}>Выйти</Button>*/}
                 <Modal isOpen={this.state.modal}>
                     <form onSubmit={this.handleSubmit}>
                         <ModalHeader><h5>Авторизация</h5></ModalHeader>
@@ -102,8 +105,8 @@ export class ModalLogIn extends React.Component {
                         </ModalBody>
 
                         <ModalFooter>
-                            <input type="submit" value="Submit" color="success" className="btn btn-success" />
-                            <Button color="danger" onClick={this.toggle}>Cancel</Button>
+                            <input type="submit" value="Войти" color="success" className="btn btn-success" />
+                            <Button color="danger" onClick={this.toggle}>Отмена</Button>
                         </ModalFooter>
                     </form>
                 </Modal>

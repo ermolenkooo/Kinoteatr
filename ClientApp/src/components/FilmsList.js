@@ -2,23 +2,58 @@
 import ReactDOM from 'react-dom'
 import { ModalEdit } from './ModalEdit'
 import { ModalAdd } from './ModalAdd';
+import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 
-export class Film extends React.Component {
+export class Film extends Component {
 
     constructor(props) {
         super(props);
-        this.state = { data: props.film };
+        this.state = { modal: false, time: '', hall: '', data: props.film };
         this.onClick = this.onClick.bind(this);
-        this.onClickEdit = this.onClickEdit.bind(this);
+        this.toggle = this.toggle.bind(this);
+        this.handleChangeTime = this.handleChangeTime.bind(this);
+        this.handleChangeHall = this.handleChangeHall.bind(this);
+        this.handleSubmit = this.handleSubmit.bind(this);
     }
+    toggle() {
+        this.setState({
+            modal: !this.state.modal
+        });
+    }
+    handleChangeTime(event) {
+        this.setState({ time: event.target.value });
+    }
+    handleChangeHall(event) {
+        this.setState({ hall: event.target.value });
+    }
+    handleSubmit(e) {
+        e.preventDefault();
+        var time = this.state.time.trim();
+        var hall = this.state.hall.trim();
+        if (!time || !hall) {
+            return;
+        }
+        
+        var xhr = new XMLHttpRequest();
+        xhr.open("post", "/api/sessions/");
+        xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+        xhr.onload = function () {
+                    
+        }.bind(this);
+        xhr.send(JSON.stringify({ filmId: this.state.data.filmId, time: time, hallId: hall }));
+        this.toggle();
+        var s = this.props.sessions[0];
+        s.sessionId = 33;
+        s.filmId = this.state.data.filmId;
+        s.time = time;
+        s.hallId = hall;
+        this.props.sessions.push(s);
+        this.setState({ time: "", hall: "" });
+        this.forceUpdate();
+    }
+
     onClick(e) {
         this.props.onRemove(this.state.data);
-    }
-    onClickEdit(e) {
-        ReactDOM.render(
-            <FilmFormEdit onFilmSubmit={this.props.onUpdate} film={this.state.data} />,
-            document.getElementById("foredit")
-        );
     }
     render() {
         return <div>
@@ -36,136 +71,58 @@ export class Film extends React.Component {
                         <p>
                             <ModalEdit onFilmSubmit={this.props.onUpdate} film={this.state.data} />
                             <p></p>
-                            {/*<button className="btn btn-outline-success" onClick={this.onClickEdit} style={{ marginRight: '10px' }}>Изменить</button>*/}
                             <button className="btn btn-outline-success" onClick={this.onClick} style={{ marginRight: '10px' }}>Удалить</button>
+                            <button className="btn btn-outline-success" onClick={this.toggle} style={{ marginRight: '10px' }}>Добавить сеанс</button>
+                            
                         </p>
+                        <p></p>
+                        {
+                            this.props.sessions.map(function (session) {
+                                var hall = session.hallId + " зал";
+                                var data = session.time.split('T')[0];
+                                var time = session.time.split('T')[1];
+                                return <button className="btn btn-outline-success" style={{ marginRight: '10px' }}>
+                                    <p>{hall}</p>
+                                    <p>{data}</p>
+                                    <p>{time}</p>
+                                </button>
+                            })
+                        }
                     </td>
                 </tr>
             </table>
+
+            <Modal isOpen={this.state.modal}>
+                <form onSubmit={this.handleSubmit}>
+                    <ModalHeader><h5>Добавление сеанса</h5></ModalHeader>
+
+                    <ModalBody>
+                        <form>
+                            <div className="form-group">
+                                <label className="control-label required">Дата и время</label>
+                                <input type="datetime-local"
+                                    className="form-control" id="InputTime" required="required" placeholder="Выберете дату и время"
+                                    value={this.state.time}
+                                    onChange={this.handleChangeTime} />
+                            </div>
+
+                            <div className="form-group">
+                                <label className="control-label required">Зал</label>
+                                <input type="number" max="4" min="1"
+                                    className="form-control" id="InputHall" required="required"
+                                    value={this.state.hall}
+                                    onChange={this.handleChangeHall} />
+                            </div>
+                        </form>
+                    </ModalBody>
+
+                    <ModalFooter>
+                        <input type="submit" value="Добавить" color="success" className="btn btn-success" />
+                        <Button color="danger" onClick={this.toggle}>Отмена</Button>
+                    </ModalFooter>
+                </form>
+            </Modal>
         </div>;
-    }
-}
-
-export class FilmForm extends React.Component {
-
-    constructor(props) {
-        super(props);
-        this.state = { name: "", timing: "", genreId: "", countryId: "", description: "", poster: "", genres: [], countries: [] };
-
-        this.onSubmit = this.onSubmit.bind(this);
-        this.onNameChange = this.onNameChange.bind(this);
-        this.onTimingChange = this.onTimingChange.bind(this);
-        this.onGenreChange = this.onGenreChange.bind(this);
-        this.onCountryChange = this.onCountryChange.bind(this);
-        this.onDescriptionChange = this.onDescriptionChange.bind(this);
-    }
-    onNameChange(e) {
-        this.setState({ name: e.target.value, poster: e.target.value + ".png" });
-    }
-    onTimingChange(e) {
-        this.setState({ timing: e.target.value });
-    }
-    onGenreChange(e) {
-        this.setState({ genreId: e.target.value });
-    }
-    onCountryChange(e) {
-        this.setState({ countryId: e.target.value });
-    }
-    onDescriptionChange(e) {
-        this.setState({ description: e.target.value });
-    }
-    onSubmit(e) {
-        e.preventDefault();
-        var filmName = this.state.name.trim();
-        var filmTiming = this.state.timing.trim();
-        var filmGenre = this.state.genreId.trim();
-        var filmCountry = this.state.countryId.trim();
-        var filmDescription = this.state.description.trim();
-        var filmPoster = "images/" + filmName + ".png";
-        if (!filmName || !filmDescription || !filmTiming || !filmGenre || !filmCountry) {
-            return;
-        }
-        this.props.onFilmSubmit({ name: filmName, description: filmDescription, timing: filmTiming, genreId: filmGenre, countryId: filmCountry, poster: filmPoster });
-        this.setState({ name: "", timing: "", genreId: "", countryId: "", description: "", poster: "" });
-    }
-    // загрузка данных
-    loadData() {
-        var xhr1 = new XMLHttpRequest();
-        xhr1.open("get", "/api/countries/", true);
-        xhr1.onload = function () {
-            console.log(xhr1.responseText);
-            var data = JSON.parse(xhr1.responseText);
-            this.setState({ countries: data });
-        }.bind(this);
-        xhr1.send();
-
-        var xhr2 = new XMLHttpRequest();
-        xhr2.open("get", "/api/genres/", true);
-        xhr2.onload = function () {
-            console.log(xhr2.responseText);
-            var data = JSON.parse(xhr2.responseText);
-            this.setState({ genres: data });
-        }.bind(this);
-        xhr2.send();
-    }
-    componentDidMount() {
-        this.loadData();
-    }
-    render() {
-        return (
-            <form onSubmit={this.onSubmit}>
-                <h4>Добавление фильма</h4>
-                <p>
-                    <label className="control-label required">Название</label>
-                    <input type="text"
-                        className="form-control col-4" id="InputName" required="required" placeholder="Введите название"
-                        value={this.state.name}
-                        onChange={this.onNameChange} />
-                </p>
-                <p>
-                    <label className="control-label required">Жанр</label>
-                    <select className="form-control col-4" id="InputGenre" required="required" placeholder="Выберете жанр"
-                        value={this.state.genreId}
-                        onChange={this.onGenreChange}>
-                        <option>Выберите жанр</option>
-                        {
-                            this.state.genres.map(function (genre) {
-                                return <option value={genre.genreId}>{genre.name}</option>
-                            })
-                        }
-                    </select>
-                </p>
-                <p>
-                    <label className="control-label required">Хронометраж</label>
-                    <input typeName="text"
-                        class="form-control col-4" id="InputTiming" required="required" placeholder="Введите хронометраж"
-                        value={this.state.timing}
-                        onChange={this.onTimingChange} />
-                </p>
-                <p>
-                    <label className="control-label required">Страна</label>
-                    <select className="form-control col-4" id="InputCountry" required="required"
-                        value={this.state.countryId}
-                        onChange={this.onCountryChange}>
-                        <option>Выберите страну</option>
-                        {
-                            this.state.countries.map(function (country) {
-                                return <option value={country.countryId}>{country.name}</option>
-                            })
-                        }
-                    </select>
-                </p>
-                <p>
-                    <label className="control-label required">Описание</label>
-                    <textarea className="form-control col-4" id="InputDescrip" placeholder="Введите описание"
-                        value={this.state.description}
-                        onChange={this.onDescriptionChange}>
-                    </textarea>
-                </p>
-                <input type="submit" className="btn btn-success" id="mybutton" value="Сохранить" />
-                <p></p>
-            </form>
-        );
     }
 }
 
@@ -173,7 +130,7 @@ export class FilmsList extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = { films: [], genres: [], countries: [] };
+        this.state = { films: [], genres: [], countries: [], sessions: [] };
 
         this.onAddFilm = this.onAddFilm.bind(this);
         this.onRemoveFilm = this.onRemoveFilm.bind(this);
@@ -207,6 +164,15 @@ export class FilmsList extends React.Component {
             this.setState({ genres: data });
         }.bind(this);
         xhr2.send();
+
+        var xhr3 = new XMLHttpRequest();
+        xhr3.open("get", "/api/Sessions/", true);
+        xhr3.onload = function () {
+            console.log(xhr3.responseText);
+            var data = JSON.parse(xhr3.responseText);
+            this.setState({ sessions: data });
+        }.bind(this);
+        xhr3.send();
     }
     componentDidMount() {
         this.loadData();
@@ -225,6 +191,27 @@ export class FilmsList extends React.Component {
     }
     // удаление объекта
     onRemoveFilm(film) {
+
+        var sessions;
+        var xhr3 = new XMLHttpRequest();
+        xhr3.open("get", "/api/Sessions/", true);
+        xhr3.onload = function () {
+            var data = JSON.parse(xhr3.responseText);
+            sessions = data;
+        }.bind(this);
+        xhr3.send();
+
+        let i = 0;
+        for (i in sessions) {
+            if (sessions[i].filmId = film.filmId) {
+                xhr3 = new XMLHttpRequest();
+                xhr3.open("delete", "/api/Sessions/", true);
+                xhr3.onload = function () {
+                    
+                }.bind(this);
+                xhr3.send(sessions[i].sessionId);
+            }
+        }
 
         if (film) {
             var url = this.props.apiUrl + "/" + film.filmId;
@@ -260,15 +247,17 @@ export class FilmsList extends React.Component {
         var update = this.onUpdateFilm;
         var mygenres = this.state.genres;
         var mycountries = this.state.countries;
+        var mysessions = this.state.sessions;
         return (
             <div>
                 <ModalAdd onFilmSubmit={this.onAddFilm} />
-                <div id="foredit"></div>
-                <h2>Список фильмов</h2>
+                <p></p>
+                <h2><b>Список фильмов</b></h2>
                 <div>
                     {
                         this.state.films.map(function (film) {
                             var mygenre, mycountry;
+                            var sessionsoffilms = [];
                             var i = 0;
                             for (i in mygenres) {
                                 if (mygenres[i].genreId == film.genreId)
@@ -279,136 +268,16 @@ export class FilmsList extends React.Component {
                                 if (mycountries[i].countryId == film.countryId)
                                     mycountry = mycountries[i].name;
                             }
-                            return <Film key={film.filmId} film={film} onRemove={remove} onEdit={edit} onUpdate={update} genre={mygenre} country={mycountry} />
+                            i = 0;
+                            for (i in mysessions) {
+                                if (mysessions[i].filmId == film.filmId)
+                                    sessionsoffilms.push(mysessions[i]);
+                            }
+                            return <Film key={film.filmId} film={film} onRemove={remove} onEdit={edit} onUpdate={update} genre={mygenre} country={mycountry} sessions={sessionsoffilms}/>
                         })
                     }
                 </div>
             </div>
-        );
-    }
-}
-
-
-export class FilmFormEdit extends React.Component {
-
-    constructor(props) {
-        super(props);
-        this.state = {
-            name: this.props.film.name, timing: this.props.film.timing, genreId: this.props.film.genreId,
-            countryId: this.props.film.countryId, description: this.props.film.description, poster: this.props.film.poster, genres: [], countries: []
-        };
-
-        this.onSubmit = this.onSubmit.bind(this);
-        this.onNameChange = this.onNameChange.bind(this);
-        this.onTimingChange = this.onTimingChange.bind(this);
-        this.onGenreChange = this.onGenreChange.bind(this);
-        this.onCountryChange = this.onCountryChange.bind(this);
-        this.onDescriptionChange = this.onDescriptionChange.bind(this);
-    }
-    onNameChange(e) {
-        this.setState({ name: e.target.value, poster: e.target.value + ".png" });
-    }
-    onTimingChange(e) {
-        this.setState({ timing: e.target.value });
-    }
-    onGenreChange(e) {
-        this.setState({ genreId: e.target.value });
-    }
-    onCountryChange(e) {
-        this.setState({ countryId: e.target.value });
-    }
-    onDescriptionChange(e) {
-        this.setState({ description: e.target.value });
-    }
-    onSubmit(e) {
-        e.preventDefault();
-        var filmName = this.state.name.trim();
-        var filmTiming = this.state.timing;
-        var filmGenre = this.state.genreId;
-        var filmCountry = this.state.countryId;
-        var filmDescription = this.state.description.trim();
-        var filmPoster = "images/" + filmName + ".png";
-        var filmId = this.props.film.filmId;
-        if (!filmName || !filmDescription || !filmTiming || !filmGenre || !filmCountry) {
-            return;
-        }
-        this.props.onFilmSubmit({ filmId: filmId, name: filmName, description: filmDescription, timing: filmTiming, genreId: filmGenre, countryId: filmCountry, poster: filmPoster });
-    }
-    // загрузка данных
-    loadData() {
-        var xhr1 = new XMLHttpRequest();
-        xhr1.open("get", "/api/countries/", true);
-        xhr1.onload = function () {
-            var data = JSON.parse(xhr1.responseText);
-            this.setState({ countries: data });
-        }.bind(this);
-        xhr1.send();
-
-        var xhr2 = new XMLHttpRequest();
-        xhr2.open("get", "/api/genres/", true);
-        xhr2.onload = function () {
-            var data = JSON.parse(xhr2.responseText);
-            this.setState({ genres: data });
-        }.bind(this);
-        xhr2.send();
-    }
-    componentDidMount() {
-        this.loadData();
-    }
-    render() {
-        return (
-            <form onSubmit={this.onSubmit}>
-                <h4>Редактирование фильма</h4>
-                <p>
-                    <label className="control-label required">Название</label>
-                    <input type="text"
-                        className="form-control col-4" id="InputName1" required="required" placeholder="Введите название"
-                        value={this.state.name}
-                        onChange={this.onNameChange} />
-                </p>
-                <p>
-                    <label className="control-label required">Жанр</label>
-                    <select className="form-control col-4" id="InputGenre1" required="required" placeholder="Выберете жанр"
-                        value={this.state.genreId}
-                        onChange={this.onGenreChange}>
-                        <option>Выберите жанр</option>
-                        {
-                            this.state.genres.map(function (genre) {
-                                return <option value={genre.genreId}>{genre.name}</option>
-                            })
-                        }
-                    </select>
-                </p>
-                <p>
-                    <label className="control-label required">Хронометраж</label>
-                    <input typeName="text"
-                        class="form-control col-4" id="InputTiming1" required="required" placeholder="Введите хронометраж"
-                        value={this.state.timing}
-                        onChange={this.onTimingChange} />
-                </p>
-                <p>
-                    <label className="control-label required">Страна</label>
-                    <select className="form-control col-4" id="InputCountry1" required="required"
-                        value={this.state.countryId}
-                        onChange={this.onCountryChange}>
-                        <option>Выберите страну</option>
-                        {
-                            this.state.countries.map(function (country) {
-                                return <option value={country.countryId}>{country.name}</option>
-                            })
-                        }
-                    </select>
-                </p>
-                <p>
-                    <label className="control-label required">Описание</label>
-                    <textarea className="form-control col-4" id="InputDescrip1" placeholder="Введите описание"
-                        value={this.state.description}
-                        onChange={this.onDescriptionChange}>
-                    </textarea>
-                </p>
-                <input type="submit" className="btn btn-success" id="mybutton" value="Сохранить" />
-                <p></p>
-            </form>
         );
     }
 }
