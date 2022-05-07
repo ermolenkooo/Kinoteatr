@@ -140,7 +140,7 @@ export class Film extends React.Component {
             {/*модальное окно*/}
             <Modal className="modal-dialog modal-lg" isOpen={this.state.modal} >
                 <form onSubmit={this.handleSubmit}>
-                    <ModalHeader className="justify-content-center"><h5>Выберете места, которые хотите забронировать</h5></ModalHeader>
+                    <ModalHeader className="justify-content-center"><h5>Выберите места, которые хотите забронировать</h5></ModalHeader>
 
                     <ModalBody className="justify-content-center">
                         <p align="center">Экран</p>
