@@ -1,51 +1,132 @@
 ﻿import React, { Component } from 'react';
 import ReactDOM from 'react-dom'
+import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 
 export class Place extends React.Component {
 
     constructor(props) {
         super(props);
         this.state = { data: props.ticket, clicked: false };
-        this.Click = this.Click.bind(this);
+        this.onClick = this.onClick.bind(this);
     }
-
     onClick(e) {
         this.setState({ clicked: !this.state.clicked });
         this.forceUpdate();
     }
     render() {
-        //тут прописать если стутус 0 то рисуем неактивную кнопку иначе если кликд фалсе то зеленая если тру другого цвета какого хэзэ
-        return <button className="btn btn-success" onClick={ this.Click() } style={{ borderRadius: '20px', width: '40px', height: '40px' }}>{ this.state.data.place }</button>
+        if (this.state.data.status == 0)
+            return <button className="btn btn-warning" style={{ borderRadius: '20px', width: '40px', height: '40px', marginRight: '10px' }} disabled>{this.state.data.place}</button>
+        else if (this.state.clicked == false)
+            return <button className="btn btn-outline-success" style={{ borderRadius: '20px', width: '40px', height: '40px', marginRight: '10px' }} onClick={this.onClick} >{this.state.data.place}</button>
+        else
+            return <button className="btn btn-success" style={{ borderRadius: '20px', width: '40px', height: '40px', marginRight: '10px' }} onClick={this.onClick} >{this.state.data.place}</button>
     }
 }
- //класс ряда где будет столько-то плэйсов в ряд а ряды будут лежать в модальном окне фильма?? что делать как делать помогите 
+
+export class Row extends React.Component {
+
+    constructor(props) {
+        super(props);
+        this.state = { places: [] };
+    }
+    render() {
+        return(
+            this.props.places.map(function (ticket) {
+                return <Place ticket={ticket} />
+            })
+    )}
+}
 
 export class Film extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = { data: props.film };
+        this.state = { data: props.film, modal: false, tickets: [], maxrow: 0 };
         this.Tickets = this.Tickets.bind(this);
+        this.handleSubmit = this.handleSubmit.bind(this);
+        this.toggle = this.toggle.bind(this);
+    }
+    toggle() {
+        this.setState({
+            modal: !this.state.modal
+        });
+    }
+    handleSubmit(e) {
+        e.preventDefault();
+        this.toggle();
     }
     Tickets() {
-        var tickets = [];
+        var alltickets;
         var xhr = new XMLHttpRequest();
         xhr.open("get", "/api/tickets/", true);
         xhr.onload = function () {
-            console.log(xhr.responseText);
             var data = JSON.parse(xhr.responseText);
-            tickets = data;
+            alltickets = data;
+            let max = 0;
+            let i = 0;
+            for (i in alltickets) {
+                if (alltickets[i].row > max)
+                    max = alltickets[i].row;
+            }
+            this.setState({ maxrow: max });
+
+            var rows = [];
+            var row = [];
+            for (i = 1; i <= max; i++) {
+                let j = 0;
+                for (j in alltickets) {
+                    if (i == alltickets[j].row)
+                        row.push(alltickets[j]);
+                }
+                rows.push(row);
+                row = [];
+            }
+            this.setState({ tickets: rows });
+            console.log(rows);
+            console.log(max);
+            this.toggle();
         }.bind(this);
         xhr.send();
-
-        let maxrow = 0;
-        let i = 0;
-        for (i in tickets) {
-            if (tickets[i].row > maxrow)
-                maxrow = tickets[i].row;
-        }
     }
+    //componentDidMount() {
+    //    var alltickets = [];
+    //    var xhr = new XMLHttpRequest();
+    //    xhr.open("get", "/api/tickets/", true);
+    //    xhr.onload = function () {
+    //        /*console.log(xhr.responseText);*/
+    //        var data = JSON.parse(xhr.responseText);
+    //        alltickets = data;
+    //    }.bind(this);
+    //    xhr.send();
+
+    //    let max = 0;
+    //    let i = 0;
+    //    for (i in alltickets) {
+    //        if (alltickets[i].row > max)
+    //            max = alltickets[i].row;
+    //    }
+    //    //this.setState({ maxrow: max });
+
+    //    var rows = [];
+    //    var row = [];
+    //    for (i = 0; i < max; i++) {
+    //        let j = 0;
+    //        for (j in alltickets) {
+    //            if (i == alltickets[j].row)
+    //                row.push(alltickets[j]);
+    //        }
+    //        rows.push(row);
+    //        row = [];
+    //    }
+    //    console.log(rows);
+    //    console.log(max);
+    //    //this.setState({ tickets: rows });
+    //}
     render() {
+        var tickets = this.Tickets;
+        //console.log(this.state.tickets);
+        //console.log(this.state.maxrow);
+        //alert(this.state.tickets, this.state.maxrow)
         return <div>
             <table className="table table-striped table-hover" id="filmsTable" style={{ fontFamily: 'Courier New' }}>
                 <tr>
@@ -64,7 +145,7 @@ export class Film extends React.Component {
                                 var hall = session.hallId + " зал";
                                 var data = session.time.split('T')[0];
                                 var time = session.time.split('T')[1];
-                                return <button className="btn btn-outline-success" style={{ marginRight: '10px' }}>
+                                return <button className="btn btn-outline-success" onClick={ tickets } style={{ marginRight: '10px' }}>
                                     <p>{hall}</p>
                                     <p>{data}</p>
                                     <p>{time}</p>
@@ -74,6 +155,29 @@ export class Film extends React.Component {
                     </td>
                 </tr>
             </table>
+
+            {/*модальное окно*/}
+            <Modal isOpen={this.state.modal}>
+                <form onSubmit={this.handleSubmit}>
+                    <ModalHeader><h5>Выберете места, которые хотите забронировать</h5></ModalHeader>
+
+                    <ModalBody>
+                        <div>
+                            {
+                                this.state.tickets.map(function (row) {
+                                    return <Row places={ row }/>
+                                })
+                            }
+                        </div>
+                    </ModalBody>
+
+                    <ModalFooter>
+                        <input type="submit" value="Забронировать" color="success" className="btn btn-success" />
+                        <Button color="danger" onClick={this.toggle}>Отмена</Button>
+                    </ModalFooter>
+                </form>
+            </Modal>
+
         </div>;
     }
 }
