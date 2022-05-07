@@ -136,7 +136,7 @@ class LoginButton extends Component {
                         <NavLink tag={Link} className="text-dark" to="/myTickets">My tickets</NavLink>
                     </NavItem>
                     <NavItem>
-                        <Button color="danger" onClick={this.onClick}>Log Out</Button>
+                        <Button color="danger" onClick={this.onClick} to="/home">Log Out</Button>
                     </NavItem>
                 </>
             

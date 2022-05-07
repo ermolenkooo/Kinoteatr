@@ -135,10 +135,12 @@ namespace Kinoteatr.Controllers
             //};
             //return Ok(msg);
 
+            string userId = "";
             string role = "";
             string message = "Вы Гость. Пожалуйста, выполните вход.";
             if (usr != null) 
             {
+                userId = usr.Id;
                 message = "Вы вошли как: " + usr.UserName;
                 if (await _userManager.IsInRoleAsync(usr, "admin"))
                     role = "admin";
@@ -149,7 +151,8 @@ namespace Kinoteatr.Controllers
             var msg = new
             {
                 message = message,
-                role = role
+                role = role,
+                userId = userId
             };
 
             return Ok(msg);
