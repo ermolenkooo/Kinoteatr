@@ -5,7 +5,6 @@ using BLL.Models;
 using BLL.Interfaces;
 using BLL.Services;
 using DAL.Entities;
-
 using Microsoft.AspNetCore.Identity;
 
 namespace Kinoteatr.Controllers

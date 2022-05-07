@@ -2,6 +2,8 @@
 import ReactDOM from 'react-dom'
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 
+var selectedTickets = [];
+
 export class Place extends React.Component {
 
     constructor(props) {
@@ -10,16 +12,25 @@ export class Place extends React.Component {
         this.onClick = this.onClick.bind(this);
     }
     onClick(e) {
+        e.preventDefault();
         this.setState({ clicked: !this.state.clicked });
-        this.forceUpdate();
+        if (this.state.clicked == false)
+            selectedTickets.push(this.state.data);
+        else {
+            var i = selectedTickets.indexOf(this.state.data, 0);
+            selectedTickets.splice(i, 1);
+        }
+        this.setState({ clicked: !this.state.clicked });
+        console.log(selectedTickets);
+
     }
     render() {
         if (this.state.data.status == 0)
-            return <button className="btn btn-warning" style={{ borderRadius: '20px', width: '40px', height: '40px', marginRight: '10px' }} disabled>{this.state.data.place}</button>
+            return <button className="btn btn-warning" style={{ borderRadius: '20px', width: '40px', height: '40px', marginRight: '10px', marginBottom: '10px' }} disabled>{this.state.data.place}</button>
         else if (this.state.clicked == false)
-            return <button className="btn btn-outline-success" style={{ borderRadius: '20px', width: '40px', height: '40px', marginRight: '10px' }} onClick={this.onClick} >{this.state.data.place}</button>
+            return <button className="btn btn-outline-success" style={{ borderRadius: '20px', width: '40px', height: '40px', marginRight: '10px', marginBottom: '10px' }} onClick={this.onClick} >{this.state.data.place}</button>
         else
-            return <button className="btn btn-success" style={{ borderRadius: '20px', width: '40px', height: '40px', marginRight: '10px' }} onClick={this.onClick} >{this.state.data.place}</button>
+            return <button className="btn btn-success" style={{ borderRadius: '20px', width: '40px', height: '40px', marginRight: '10px', marginBottom: '10px' }} onClick={this.onClick} >{this.state.data.place}</button>
     }
 }
 
@@ -54,8 +65,15 @@ export class Film extends React.Component {
     handleSubmit(e) {
         e.preventDefault();
         this.toggle();
+        var xhr = new XMLHttpRequest();
+        xhr.open("post", "/api/booking/", true);
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.onload = function () {
+            alert("Билеты успешно забронированы! :)")
+        }.bind(this);
+        xhr.send(JSON.stringify(selectedTickets));
     }
-    Tickets() {
+    Tickets(session) {
         var alltickets;
         var xhr = new XMLHttpRequest();
         xhr.open("get", "/api/tickets/", true);
@@ -65,7 +83,7 @@ export class Film extends React.Component {
             let max = 0;
             let i = 0;
             for (i in alltickets) {
-                if (alltickets[i].row > max)
+                if (alltickets[i].row > max && alltickets[i].sessionId == session)
                     max = alltickets[i].row;
             }
             this.setState({ maxrow: max });
@@ -75,7 +93,7 @@ export class Film extends React.Component {
             for (i = 1; i <= max; i++) {
                 let j = 0;
                 for (j in alltickets) {
-                    if (i == alltickets[j].row)
+                    if (i == alltickets[j].row && alltickets[j].sessionId == session)
                         row.push(alltickets[j]);
                 }
                 rows.push(row);
@@ -88,45 +106,8 @@ export class Film extends React.Component {
         }.bind(this);
         xhr.send();
     }
-    //componentDidMount() {
-    //    var alltickets = [];
-    //    var xhr = new XMLHttpRequest();
-    //    xhr.open("get", "/api/tickets/", true);
-    //    xhr.onload = function () {
-    //        /*console.log(xhr.responseText);*/
-    //        var data = JSON.parse(xhr.responseText);
-    //        alltickets = data;
-    //    }.bind(this);
-    //    xhr.send();
-
-    //    let max = 0;
-    //    let i = 0;
-    //    for (i in alltickets) {
-    //        if (alltickets[i].row > max)
-    //            max = alltickets[i].row;
-    //    }
-    //    //this.setState({ maxrow: max });
-
-    //    var rows = [];
-    //    var row = [];
-    //    for (i = 0; i < max; i++) {
-    //        let j = 0;
-    //        for (j in alltickets) {
-    //            if (i == alltickets[j].row)
-    //                row.push(alltickets[j]);
-    //        }
-    //        rows.push(row);
-    //        row = [];
-    //    }
-    //    console.log(rows);
-    //    console.log(max);
-    //    //this.setState({ tickets: rows });
-    //}
     render() {
         var tickets = this.Tickets;
-        //console.log(this.state.tickets);
-        //console.log(this.state.maxrow);
-        //alert(this.state.tickets, this.state.maxrow)
         return <div>
             <table className="table table-striped table-hover" id="filmsTable" style={{ fontFamily: 'Courier New' }}>
                 <tr>
@@ -145,7 +126,7 @@ export class Film extends React.Component {
                                 var hall = session.hallId + " зал";
                                 var data = session.time.split('T')[0];
                                 var time = session.time.split('T')[1];
-                                return <button className="btn btn-outline-success" onClick={ tickets } style={{ marginRight: '10px' }}>
+                                return <button className="btn btn-outline-success" onClick={ () => tickets(session.sessionId) } style={{ marginRight: '10px' }}>
                                     <p>{hall}</p>
                                     <p>{data}</p>
                                     <p>{time}</p>
@@ -157,16 +138,19 @@ export class Film extends React.Component {
             </table>
 
             {/*модальное окно*/}
-            <Modal isOpen={this.state.modal}>
+            <Modal className="modal-dialog modal-lg" isOpen={this.state.modal} >
                 <form onSubmit={this.handleSubmit}>
-                    <ModalHeader><h5>Выберете места, которые хотите забронировать</h5></ModalHeader>
+                    <ModalHeader className="justify-content-center"><h5>Выберете места, которые хотите забронировать</h5></ModalHeader>
 
-                    <ModalBody>
-                        <div>
+                    <ModalBody className="justify-content-center">
+                        <p align="center">Экран</p>
+                        <p align="center">--------------------------------------------------------</p>
+                        <div className="justify-content-center">
                             {
                                 this.state.tickets.map(function (row) {
-                                    return <Row places={ row }/>
+                                    return <div><Row places={row} /></div>
                                 })
+                                
                             }
                         </div>
                     </ModalBody>

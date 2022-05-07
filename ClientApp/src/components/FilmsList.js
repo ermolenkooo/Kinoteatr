@@ -4,21 +4,88 @@ import { ModalEdit } from './ModalEdit'
 import { ModalAdd } from './ModalAdd';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 
+export class Place extends React.Component {
+
+    constructor(props) {
+        super(props);
+        this.state = { data: props.ticket };
+    }
+    render() {
+        if (this.state.data.status == 0)
+            return <button className="btn btn-warning" style={{ borderRadius: '20px', width: '40px', height: '40px', marginRight: '10px', marginBottom: '10px' }} disabled>{this.state.data.place}</button>
+        else
+            return <button className="btn btn-outline-success" style={{ borderRadius: '20px', width: '40px', height: '40px', marginRight: '10px', marginBottom: '10px' }} disabled>{this.state.data.place}</button>
+    }
+}
+
+export class Row extends React.Component {
+
+    constructor(props) {
+        super(props);
+        this.state = { places: [] };
+    }
+    render() {
+        return (
+            this.props.places.map(function (ticket) {
+                return <Place ticket={ticket} />
+            })
+        )
+    }
+}
+
 export class Film extends Component {
 
     constructor(props) {
         super(props);
-        this.state = { modal: false, time: '', hall: '', data: props.film };
+        this.state = { modal: false, time: '', hall: '', data: props.film, modal1: false, tickets: [], maxrow: 0 };
         this.onClick = this.onClick.bind(this);
         this.toggle = this.toggle.bind(this);
         this.handleChangeTime = this.handleChangeTime.bind(this);
         this.handleChangeHall = this.handleChangeHall.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
+        this.Tickets = this.Tickets.bind(this);
+        this.toggle1 = this.toggle1.bind(this);
     }
     toggle() {
         this.setState({
             modal: !this.state.modal
         });
+    }
+    toggle1() {
+        this.setState({
+            modal1: !this.state.modal1
+        });
+    }
+    Tickets(session) {
+        var alltickets;
+        var xhr = new XMLHttpRequest();
+        xhr.open("get", "/api/tickets/", true);
+        xhr.onload = function () {
+            var data = JSON.parse(xhr.responseText);
+            alltickets = data;
+            let max = 0;
+            let i = 0;
+            for (i in alltickets) {
+                if (alltickets[i].row > max && alltickets[i].sessionId == session)
+                    max = alltickets[i].row;
+            }
+            this.setState({ maxrow: max });
+
+            var rows = [];
+            var row = [];
+            for (i = 1; i <= max; i++) {
+                let j = 0;
+                for (j in alltickets) {
+                    if (i == alltickets[j].row && alltickets[j].sessionId == session)
+                        row.push(alltickets[j]);
+                }
+                rows.push(row);
+                row = [];
+            }
+            this.setState({ tickets: rows });
+            this.toggle1();
+        }.bind(this);
+        xhr.send();
     }
     handleChangeTime(event) {
         this.setState({ time: event.target.value });
@@ -56,6 +123,7 @@ export class Film extends Component {
         this.props.onRemove(this.state.data);
     }
     render() {
+        var tickets = this.Tickets;
         return <div>
             <table className="table table-striped table-hover" id="filmsTable" style={{ fontFamily: 'Courier New' }}>
                 <tr>
@@ -81,7 +149,7 @@ export class Film extends Component {
                                 var hall = session.hallId + " зал";
                                 var data = session.time.split('T')[0];
                                 var time = session.time.split('T')[1];
-                                return <button className="btn btn-outline-success" style={{ marginRight: '10px' }}>
+                                return <button className="btn btn-outline-success" onClick={() => tickets(session.sessionId)} style={{ marginRight: '10px' }}>
                                     <p>{hall}</p>
                                     <p>{data}</p>
                                     <p>{time}</p>
@@ -119,6 +187,30 @@ export class Film extends Component {
                     <ModalFooter>
                         <input type="submit" value="Добавить" color="success" className="btn btn-success" />
                         <Button color="danger" onClick={this.toggle}>Отмена</Button>
+                    </ModalFooter>
+                </form>
+            </Modal>
+
+            {/*модальное окно*/}
+            <Modal className="modal-dialog modal-lg" isOpen={this.state.modal1} >
+                <form>
+                    <ModalHeader className="justify-content-center"><h5>Здесь вы можете ознакомиться с загрузкой зала</h5></ModalHeader>
+
+                    <ModalBody className="justify-content-center">
+                        <p align="center">Экран</p>
+                        <p align="center">--------------------------------------------------------</p>
+                        <div className="justify-content-center">
+                            {
+                                this.state.tickets.map(function (row) {
+                                    return <div><Row places={row} /></div>
+                                })
+
+                            }
+                        </div>
+                    </ModalBody>
+
+                    <ModalFooter>
+                        <Button color="success" onClick={this.toggle1}>Ок</Button>
                     </ModalFooter>
                 </form>
             </Modal>
