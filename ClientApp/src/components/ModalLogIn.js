@@ -53,7 +53,6 @@ export class ModalLogIn extends React.Component {
                     alert(content.error);
                 else {
                     this.setState({ email: "", password: "" })
-                    alert(content.message);
                     this.toggle();
                     this.getCurrentUser();
                     this.props.onCheck();

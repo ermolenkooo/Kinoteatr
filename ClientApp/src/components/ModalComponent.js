@@ -44,8 +44,7 @@ export class ModalComponent extends React.Component {
                 if (content.error)
                     alert(content.error);
                 else {
-                    this.setState({ email: "", password: "", passwordConfirm: "" })
-                    alert(content.message);
+                    this.setState({ email: "", password: "", passwordConfirm: "" });
                     this.toggle();
                 }
             }.bind(this);

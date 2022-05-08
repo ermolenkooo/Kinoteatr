@@ -10,6 +10,7 @@ using DAL.Entities;
 using DAL.Repository;
 using BLL;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Logging;
 
 namespace Kinoteatr.Controllers
 {
@@ -20,12 +21,20 @@ namespace Kinoteatr.Controllers
         //IDbCrud crudServ;
         /*private readonly*/
         IDbCrud crudServ;
+        ILogger logger; // логгер
         //private readonly FilmContext _context;
-        public SessionsController(DAL.Entities.FilmContext context /*IDbCrud crudDb*/)
+        public SessionsController(/*DAL.Entities.FilmContext context*/ /*IDbCrud crudDb*/)
         {
             //_context = context;
             //crudServ = crudDb;
-            crudServ = new DbDataOperation(new DbReposSQL(context));
+            crudServ = new DbDataOperation(/*new DbReposSQL(context)*/);
+
+            var loggerFactory = LoggerFactory.Create(builder =>
+            {
+                builder.AddConsole();
+            });
+
+            logger = loggerFactory.CreateLogger<SessionsController>();
         }
 
         [HttpGet("{id}")]
@@ -53,6 +62,7 @@ namespace Kinoteatr.Controllers
                 return BadRequest(ModelState);
             }
             crudServ.CreateSession(session);
+            logger.LogInformation("Был добавлен новый сеанс " + session.Time);
             return CreatedAtAction("GetFilm", new { id = session.SessionId }, session);
         }
 

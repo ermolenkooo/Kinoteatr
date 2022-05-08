@@ -105,18 +105,19 @@ export class Film extends Component {
         xhr.open("post", "/api/sessions/");
         xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
         xhr.onload = function () {
-                    
+            this.toggle();
+            //var s = this.props.sessions[0];
+            //s.sessionId = 33;
+            //s.filmId = this.state.data.filmId;
+            //s.time = time;
+            //s.hallId = hall;
+            //this.props.sessions.push(s);
+            //this.setState({ time: "", hall: "" });
+            this.props.load();
         }.bind(this);
         xhr.send(JSON.stringify({ filmId: this.state.data.filmId, time: time, hallId: hall }));
-        this.toggle();
-        var s = this.props.sessions[0];
-        s.sessionId = 33;
-        s.filmId = this.state.data.filmId;
-        s.time = time;
-        s.hallId = hall;
-        this.props.sessions.push(s);
-        this.setState({ time: "", hall: "" });
-        this.forceUpdate();
+        
+        //this.forceUpdate();
     }
 
     onClick(e) {
@@ -227,6 +228,7 @@ export class FilmsList extends React.Component {
         this.onAddFilm = this.onAddFilm.bind(this);
         this.onRemoveFilm = this.onRemoveFilm.bind(this);
         this.onUpdateFilm = this.onUpdateFilm.bind(this);
+        this.loadData = this.loadData.bind(this);
     }
     // загрузка данных
     loadData() {
@@ -325,6 +327,7 @@ export class FilmsList extends React.Component {
             xhr.setRequestHeader("Content-Type", "application/json");
             xhr.onload = function () {
                 this.loadData();
+                this.forceUpdate();
                 //ReactDOM.render(
                 //    <p></p>,
                 //    document.getElementById("foredit")
@@ -334,6 +337,7 @@ export class FilmsList extends React.Component {
         }
     }
     render() {
+        var load = this.loadData;
         var remove = this.onRemoveFilm;
         var edit = this.onEditFilm;
         var update = this.onUpdateFilm;
@@ -365,7 +369,7 @@ export class FilmsList extends React.Component {
                                 if (mysessions[i].filmId == film.filmId)
                                     sessionsoffilms.push(mysessions[i]);
                             }
-                            return <Film key={film.filmId} film={film} onRemove={remove} onEdit={edit} onUpdate={update} genre={mygenre} country={mycountry} sessions={sessionsoffilms}/>
+                            return <Film key={film.filmId} film={film} onRemove={remove} onEdit={edit} onUpdate={update} load={load} genre={mygenre} country={mycountry} sessions={sessionsoffilms}/>
                         })
                     }
                 </div>

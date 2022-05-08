@@ -11,6 +11,7 @@ using DAL.Entities;
 using DAL.Repository;
 using BLL;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Logging;
 
 namespace Kinoteatr.Controllers
 {
@@ -20,12 +21,21 @@ namespace Kinoteatr.Controllers
     {
         //IDbCrud crudServ;
         /*private readonly*/ IDbCrud crudServ;
+        ILogger logger; // логгер
         //private readonly FilmContext _context;
-        public FilmsController(DAL.Entities.FilmContext context /*IDbCrud crudDb*/)
+        public FilmsController(/*DAL.Entities.FilmContext context*/ /*IDbCrud crudDb*/)
         {
             //_context = context;
             //crudServ = crudDb;
-            crudServ = new DbDataOperation(new DbReposSQL(context));
+            //crudServ = new DbDataOperation(new DbReposSQL(context));
+            crudServ = new DbDataOperation();
+
+            var loggerFactory = LoggerFactory.Create(builder =>
+            {
+                builder.AddConsole();
+            });
+
+            logger = loggerFactory.CreateLogger<FilmsController>();
         }
 
         //private readonly FilmContext _context;
@@ -67,6 +77,7 @@ namespace Kinoteatr.Controllers
                 return BadRequest(ModelState);
             }
             crudServ.CreateFilm(film);
+            logger.LogInformation("Был добавлен новый фильм: " + film.Name);
             //_context.Film.Add(film);
             //await _context.SaveChangesAsync();
             return CreatedAtAction("GetFilm", new { id = film.FilmId }, film);
@@ -92,6 +103,7 @@ namespace Kinoteatr.Controllers
             item.Description = film.Description;
             item.Poster = film.Poster;
             crudServ.UpdateFilm(item);
+            logger.LogInformation("Был обновлен фильм: " + film.Name);
             return NoContent();
         }
 
@@ -104,6 +116,7 @@ namespace Kinoteatr.Controllers
                 return BadRequest(ModelState);
             }
             crudServ.DeleteFilm(id);
+            logger.LogInformation("Фильм был удален");
             return NoContent();
         }
 

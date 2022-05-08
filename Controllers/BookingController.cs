@@ -9,6 +9,7 @@ using DAL.Repository;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
 using System.Collections.Generic;
+using Microsoft.Extensions.Logging;
 
 namespace Kinoteatr.Controllers
 {
@@ -18,11 +19,19 @@ namespace Kinoteatr.Controllers
     {
         IBooking serv;
         private readonly UserManager<Viewer> _userManager;
+        ILogger logger; // логгер
 
-        public BookingController(DAL.Entities.FilmContext context, UserManager<Viewer> userManager)
+        public BookingController(/*DAL.Entities.FilmContext context,*/ UserManager<Viewer> userManager)
         {
             _userManager = userManager;
-            serv = new BookingService(new DbReposSQL(context));
+            serv = new BookingService(/*new DbReposSQL(context)*/);
+
+            var loggerFactory = LoggerFactory.Create(builder =>
+            {
+                builder.AddConsole();
+            });
+
+            logger = loggerFactory.CreateLogger<BookingController>();
         }
 
         [HttpPost]
@@ -34,6 +43,7 @@ namespace Kinoteatr.Controllers
             }
             Viewer usr = await GetCurrentUserAsync();
             serv.NewBooking(tickets, usr.Id);
+            logger.LogInformation("Были забронированы билеты пользователем: " + usr.UserName);
             return CreatedAtAction("", tickets);
         }
 

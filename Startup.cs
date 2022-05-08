@@ -17,6 +17,7 @@ using System;
 using Microsoft.AspNetCore.Identity;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using Microsoft.OpenApi.Models;
 
 namespace Kinoteatr
 {
@@ -117,6 +118,21 @@ namespace Kinoteatr
                     return Task.CompletedTask;
                 };
             });
+
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo
+                {
+                    Title = "API",
+                    Version = "v1",
+                    Description = "description here",
+                    Contact = new OpenApiContact
+                    {
+                        Name = "Daria",
+                        Email = string.Empty,
+                    },
+                });
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -136,6 +152,13 @@ namespace Kinoteatr
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "API V1");
+                c.RoutePrefix = string.Empty;
+            });
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();

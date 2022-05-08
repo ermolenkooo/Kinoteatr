@@ -6,6 +6,7 @@ using BLL.Interfaces;
 using BLL.Services;
 using DAL.Entities;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Logging;
 
 namespace Kinoteatr.Controllers
 {
@@ -14,13 +15,19 @@ namespace Kinoteatr.Controllers
     {
         private readonly UserManager<Viewer> _userManager;
         private readonly SignInManager<Viewer> _signInManager;
-        //IAccount accServ;
+        ILogger logger; // логгер
 
         public AccountController(UserManager<Viewer> userManager, SignInManager<Viewer> signInManager)
         {
             _userManager = userManager;
             _signInManager = signInManager;
-            //accServ = new AccountService();
+
+            var loggerFactory = LoggerFactory.Create(builder =>
+            {
+                builder.AddConsole();
+            });
+
+            logger = loggerFactory.CreateLogger<AccountController>();
         }
 
         [HttpPost]
@@ -45,6 +52,7 @@ namespace Kinoteatr.Controllers
                     {
                         message = "Добавлен новый пользователь: " + user.UserName
                     };
+                    logger.LogInformation("Добавлен новый пользователь: " + user.UserName);
                     return Ok(msg);
                 }
                 else
@@ -58,6 +66,7 @@ namespace Kinoteatr.Controllers
                         message = "Пользователь не добавлен.",
                         error = ModelState.Values.SelectMany(e => e.Errors.Select(er => er.ErrorMessage))
                     };
+                    logger.LogInformation("Пользователь не добавлен.");
                     return Ok(errorMsg);
                 }
             }
@@ -68,6 +77,7 @@ namespace Kinoteatr.Controllers
                     message = "Неверные входные данные.",
                     error = ModelState.Values.SelectMany(e => e.Errors.Select(er => er.ErrorMessage))
                 };
+                logger.LogInformation("Неверные входные данные.");
                 return Ok(errorMsg);
             }
         }
@@ -87,6 +97,7 @@ namespace Kinoteatr.Controllers
                     {
                         message = "Выполнен вход пользователем: " + model.Email
                     };
+                    logger.LogInformation("Выполнен вход пользователем: " + model.Email);
                     return Ok(msg);
                 }
                 else
@@ -96,6 +107,7 @@ namespace Kinoteatr.Controllers
                     {
                         message = "Вход не выполнен.", error = ModelState.Values.SelectMany(e => e.Errors.Select(er => er.ErrorMessage))
                     };
+                    logger.LogInformation("Неправильный логин и(или) пароль");
                     return Ok(errorMsg);
                 }
             }
@@ -105,6 +117,7 @@ namespace Kinoteatr.Controllers
                 {
                     message = "Вход не выполнен.", error = ModelState.Values.SelectMany(e => e.Errors.Select(er => er.ErrorMessage))
                 };
+                logger.LogInformation("Вход не выполнен.");
                 return Ok(errorMsg);
             }
         }
@@ -119,6 +132,7 @@ namespace Kinoteatr.Controllers
             {
                 message = "Выполнен выход."
             };
+            logger.LogInformation("Выполнен выход.");
             return Ok(msg);
         }
 

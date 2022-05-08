@@ -18,11 +18,11 @@ namespace Kinoteatr.Controllers
     {
         //private readonly FilmContext _context;
         IDbCrud crudServ;
-        public CountriesController(DAL.Entities.FilmContext context /*IDbCrud crudDb*/)
+        public CountriesController(/*DAL.Entities.FilmContext context*/ /*IDbCrud crudDb*/)
         {
             //_context = context;
             //crudServ = crudDb;
-            crudServ = new DbDataOperation(new DbReposSQL(context));
+            crudServ = new DbDataOperation(/*new DbReposSQL(context)*/);
         }
 
         [HttpGet]

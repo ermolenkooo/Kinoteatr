@@ -71,7 +71,7 @@ export class MyTickets extends Component {
             //window.location.reload();
         }.bind(this);
         xhr3.send();
-        this.forceUpdate();
+        //this.forceUpdate();
     }
     componentDidMount() {
         this.loadData();
