@@ -62,7 +62,7 @@ namespace Kinoteatr.Controllers
                 return BadRequest(ModelState);
             }
             crudServ.CreateSession(session);
-            logger.LogInformation("Был добавлен новый сеанс " + session.Time);
+            logger.LogInformation("A new session has been added " + session.Time);
             return CreatedAtAction("GetFilm", new { id = session.SessionId }, session);
         }
 

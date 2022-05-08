@@ -77,7 +77,7 @@ namespace Kinoteatr.Controllers
                 return BadRequest(ModelState);
             }
             crudServ.CreateFilm(film);
-            logger.LogInformation("Был добавлен новый фильм: " + film.Name);
+            logger.LogInformation("A new movie has been added");
             //_context.Film.Add(film);
             //await _context.SaveChangesAsync();
             return CreatedAtAction("GetFilm", new { id = film.FilmId }, film);
@@ -103,7 +103,7 @@ namespace Kinoteatr.Controllers
             item.Description = film.Description;
             item.Poster = film.Poster;
             crudServ.UpdateFilm(item);
-            logger.LogInformation("Был обновлен фильм: " + film.Name);
+            logger.LogInformation("The movie has been updated " + film.FilmId);
             return NoContent();
         }
 
@@ -116,7 +116,7 @@ namespace Kinoteatr.Controllers
                 return BadRequest(ModelState);
             }
             crudServ.DeleteFilm(id);
-            logger.LogInformation("Фильм был удален");
+            logger.LogInformation("The movie has been deleted");
             return NoContent();
         }
 

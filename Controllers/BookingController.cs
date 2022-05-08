@@ -43,7 +43,7 @@ namespace Kinoteatr.Controllers
             }
             Viewer usr = await GetCurrentUserAsync();
             serv.NewBooking(tickets, usr.Id);
-            logger.LogInformation("Были забронированы билеты пользователем: " + usr.UserName);
+            logger.LogInformation("Tickets were booked by the user " + usr.UserName);
             return CreatedAtAction("", tickets);
         }
 

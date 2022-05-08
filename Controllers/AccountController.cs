@@ -52,7 +52,7 @@ namespace Kinoteatr.Controllers
                     {
                         message = "Добавлен новый пользователь: " + user.UserName
                     };
-                    logger.LogInformation("Добавлен новый пользователь: " + user.UserName);
+                    logger.LogInformation("A new user has been added " + user.UserName);
                     return Ok(msg);
                 }
                 else
@@ -66,7 +66,7 @@ namespace Kinoteatr.Controllers
                         message = "Пользователь не добавлен.",
                         error = ModelState.Values.SelectMany(e => e.Errors.Select(er => er.ErrorMessage))
                     };
-                    logger.LogInformation("Пользователь не добавлен.");
+                    logger.LogInformation("The user has not been added");
                     return Ok(errorMsg);
                 }
             }
@@ -77,7 +77,7 @@ namespace Kinoteatr.Controllers
                     message = "Неверные входные данные.",
                     error = ModelState.Values.SelectMany(e => e.Errors.Select(er => er.ErrorMessage))
                 };
-                logger.LogInformation("Неверные входные данные.");
+                logger.LogInformation("Invalid input data");
                 return Ok(errorMsg);
             }
         }
@@ -97,7 +97,7 @@ namespace Kinoteatr.Controllers
                     {
                         message = "Выполнен вход пользователем: " + model.Email
                     };
-                    logger.LogInformation("Выполнен вход пользователем: " + model.Email);
+                    logger.LogInformation("User logged " + model.Email);
                     return Ok(msg);
                 }
                 else
@@ -107,7 +107,7 @@ namespace Kinoteatr.Controllers
                     {
                         message = "Вход не выполнен.", error = ModelState.Values.SelectMany(e => e.Errors.Select(er => er.ErrorMessage))
                     };
-                    logger.LogInformation("Неправильный логин и(или) пароль");
+                    logger.LogInformation("Invalid username or password");
                     return Ok(errorMsg);
                 }
             }
@@ -117,7 +117,7 @@ namespace Kinoteatr.Controllers
                 {
                     message = "Вход не выполнен.", error = ModelState.Values.SelectMany(e => e.Errors.Select(er => er.ErrorMessage))
                 };
-                logger.LogInformation("Вход не выполнен.");
+                logger.LogInformation("Login failed");
                 return Ok(errorMsg);
             }
         }
@@ -132,7 +132,7 @@ namespace Kinoteatr.Controllers
             {
                 message = "Выполнен выход."
             };
-            logger.LogInformation("Выполнен выход.");
+            logger.LogInformation("Exit completed");
             return Ok(msg);
         }
 
