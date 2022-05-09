@@ -2,8 +2,6 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using BLL.Models;
-using BLL.Interfaces;
-using BLL.Services;
 using DAL.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
@@ -11,7 +9,7 @@ using Microsoft.Extensions.Logging;
 namespace Kinoteatr.Controllers
 {
     [Produces("application/json")]
-    public class AccountController : Controller
+    public class AccountController : Controller //контроллер авторизации и регистрации
     {
         private readonly UserManager<Viewer> _userManager;
         private readonly SignInManager<Viewer> _signInManager;
@@ -22,7 +20,7 @@ namespace Kinoteatr.Controllers
             _userManager = userManager;
             _signInManager = signInManager;
 
-            var loggerFactory = LoggerFactory.Create(builder =>
+            var loggerFactory = LoggerFactory.Create(builder => //логгирование
             {
                 builder.AddConsole();
             });
@@ -32,7 +30,7 @@ namespace Kinoteatr.Controllers
 
         [HttpPost]
         [Route("api/Account/Register")]
-        public async Task<IActionResult> Register([FromBody] RegisterViewModel model)
+        public async Task<IActionResult> Register([FromBody] RegisterViewModel model) //регистрация
         {
             if (ModelState.IsValid)
             {
@@ -85,8 +83,7 @@ namespace Kinoteatr.Controllers
         [HttpPost]
 
         [Route("api/Account/Login")]
-        //[ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login([FromBody] LoginViewModel model)
+        public async Task<IActionResult> Login([FromBody] LoginViewModel model) //авторизация
         {
             if (ModelState.IsValid)
             {
@@ -123,8 +120,7 @@ namespace Kinoteatr.Controllers
         }
         [HttpPost]
         [Route("api/Account/LogOff")]
-        //[ValidateAntiForgeryToken]
-        public async Task<IActionResult> LogOff()
+        public async Task<IActionResult> LogOff() //выход из аккаунта
         {
             // Удаление куки
             await _signInManager.SignOutAsync();
@@ -138,16 +134,9 @@ namespace Kinoteatr.Controllers
 
         [HttpPost]
         [Route("api/Account/isAuthenticated")]
-        //[ValidateAntiForgeryToken]
-        public async Task<IActionResult> LogisAuthenticatedOff()
+        public async Task<IActionResult> LogisAuthenticatedOff() //проверка авторизации
         {
             Viewer usr = await GetCurrentUserAsync();
-            //var message = usr == null ? "Вы Гость. Пожалуйста, выполните вход." : "Вы вошли как: " + usr.UserName;
-            //var msg = new
-            //{
-            //    message
-            //};
-            //return Ok(msg);
 
             string userId = "";
             string role = "";
@@ -172,6 +161,6 @@ namespace Kinoteatr.Controllers
             return Ok(msg);
         }
 
-        private Task<Viewer> GetCurrentUserAsync() => _userManager.GetUserAsync(HttpContext.User);
+        private Task<Viewer> GetCurrentUserAsync() => _userManager.GetUserAsync(HttpContext.User); //определние текущего пользователя
     }
 }

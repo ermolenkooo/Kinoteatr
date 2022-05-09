@@ -1,7 +1,7 @@
 ﻿import React from 'react';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 
-export class ModalComponent extends React.Component {
+export class ModalComponent extends React.Component { //класс модального окна регистрации
     constructor(props) {
         super(props);
         this.state = { modal: false, email: '', password: '', passwordConfirm: '' };
@@ -27,7 +27,7 @@ export class ModalComponent extends React.Component {
     handleChangePasswordConfirm(event) {
         this.setState({ passwordConfirm: event.target.value });
     }
-    handleSubmit(e) {
+    handleSubmit(e) { //обработка нажатия на кнопку "зарегистрироваться"
         e.preventDefault();
         var Email = this.state.email.trim();
         var Password = this.state.password.trim();

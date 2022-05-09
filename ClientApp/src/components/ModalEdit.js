@@ -1,7 +1,7 @@
 ﻿import React from 'react';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 
-export class ModalEdit extends React.Component {
+export class ModalEdit extends React.Component { //класс модального окна редактирования фильма
     constructor(props) {
         super(props);
         this.state = {
@@ -38,7 +38,7 @@ export class ModalEdit extends React.Component {
     handleChangeDescription(event) {
         this.setState({ description: event.target.value });
     }
-    handleSubmit(e) {
+    handleSubmit(e) { //обработка нажатия на кнопку "изменить"
         e.preventDefault();
         var filmName = this.state.name.trim();
         var filmTiming = this.state.timing;
@@ -51,29 +51,11 @@ export class ModalEdit extends React.Component {
             return;
         }
         this.props.onFilmSubmit({ filmId: filmId, name: filmName, description: filmDescription, timing: filmTiming, genreId: filmGenre, countryId: filmCountry, poster: filmPoster });
-        //e.preventDefault();
-        //var filmName = this.state.name.trim();
-        //var filmTiming = this.state.timing.trim();
-        //var filmGenre = this.state.genreId.trim();
-        //var filmCountry = this.state.countryId.trim();
-        //var filmDescription = this.state.description.trim();
-        //var filmPoster = "images/" + filmName + ".png";
-        //if (!filmName || !filmDescription || !filmTiming || !filmGenre || !filmCountry) {
-        //    return;
-        //}
-
-        //var xhr = new XMLHttpRequest();
-        //xhr.open("post", "/api/films/");
-        //xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-        //xhr.onload = function () {
-        //    this.loadData();
-        //}.bind(this);
-        //xhr.send(JSON.stringify({ name: filmName, genreId: filmGenre, timing: filmTiming, countryId: filmCountry, poster: filmPoster, description: filmDescription }));
         this.toggle();
     }
     // загрузка данных
     loadData() {
-        var xhr1 = new XMLHttpRequest();
+        var xhr1 = new XMLHttpRequest(); //получение списка стран
         xhr1.open("get", "/api/countries/", true);
         xhr1.onload = function () {
             var data = JSON.parse(xhr1.responseText);
@@ -81,7 +63,7 @@ export class ModalEdit extends React.Component {
         }.bind(this);
         xhr1.send();
 
-        var xhr2 = new XMLHttpRequest();
+        var xhr2 = new XMLHttpRequest(); //получение списка жанров
         xhr2.open("get", "/api/genres/", true);
         xhr2.onload = function () {
             var data = JSON.parse(xhr2.responseText);

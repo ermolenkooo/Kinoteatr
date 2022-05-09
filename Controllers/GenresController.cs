@@ -1,32 +1,23 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-//using Kinoteatr.Models;
 using BLL.Interfaces;
 using BLL.Models;
-using DAL.Entities;
-using DAL.Repository;
 using BLL;
 
 namespace Kinoteatr.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class GenresController : ControllerBase
+    public class GenresController : ControllerBase //контроллер жанров
     {
-        //private readonly FilmContext _context;
         IDbCrud crudServ;
-        public GenresController(/*DAL.Entities.FilmContext context*/ /*IDbCrud crudDb*/)
+        public GenresController()
         {
-            //_context = context;
-            //crudServ = crudDb;
-            crudServ = new DbDataOperation(/*new DbReposSQL(context)*/);
+            crudServ = new DbDataOperation();
         }
 
         [HttpGet]
-        public IEnumerable<GenreModel> GetAllGenres()
+        public IEnumerable<GenreModel> GetAllGenres() //получение списка жанров
         {
             return crudServ.GetAllGenres();
         }

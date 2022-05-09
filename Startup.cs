@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -8,11 +7,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Microsoft.Extensions.Hosting;
-using BLL.Interfaces;
-using BLL;
-using DAL;
-using DAL.Interfaces;
-using DAL.Repository;
 using System;
 using Microsoft.AspNetCore.Identity;
 using System.Threading.Tasks;
@@ -28,7 +22,7 @@ namespace Kinoteatr
             Configuration = configuration;
         }
 
-        private async Task CreateUserRoles(IServiceProvider serviceProvider)
+        private async Task CreateUserRoles(IServiceProvider serviceProvider) //создание пользовательских ролей
         {
             var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
             var userManager = serviceProvider.GetRequiredService<UserManager<DAL.Entities.Viewer>>();
@@ -85,7 +79,6 @@ namespace Kinoteatr
             services.AddIdentity<DAL.Entities.Viewer, IdentityRole>().AddEntityFrameworkStores<DAL.Entities.FilmContext>();
 
             services.AddDbContext<DAL.Entities.FilmContext>(options => options.UseSqlServer(connection, b => b.MigrationsAssembly("Kinoteatr")));
-            //services.AddDbContext<FilmContext>(options => options.UseSqlServer(connection));
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
             services.AddControllers();
             services.AddMvc(options => options.EnableEndpointRouting = false);
@@ -119,7 +112,7 @@ namespace Kinoteatr
                 };
             });
 
-            services.AddSwaggerGen(c =>
+            services.AddSwaggerGen(c => //сваггер
             {
                 c.SwaggerDoc("v1", new OpenApiInfo
                 {
@@ -149,11 +142,10 @@ namespace Kinoteatr
             else
             {
                 app.UseExceptionHandler("/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
 
-            app.UseSwagger();
+            app.UseSwagger(); //сваггер
             app.UseSwaggerUI(c =>
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "API V1");

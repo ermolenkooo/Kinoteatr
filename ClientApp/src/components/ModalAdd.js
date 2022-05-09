@@ -1,7 +1,7 @@
 ﻿import React from 'react';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 
-export class ModalAdd extends React.Component {
+export class ModalAdd extends React.Component { //класс модального окна добавления фильма
     constructor(props) {
         super(props);
         this.state = { modal: false, name: "", timing: "", genreId: "", countryId: "", description: "", poster: "", genres: [], countries: [] };
@@ -35,33 +35,7 @@ export class ModalAdd extends React.Component {
     handleChangeDescription(event) {
         this.setState({ description: event.target.value });
     }
-    handleSubmit(e) {
-        //e.preventDefault();
-        //var Email = this.state.email.trim();
-        //var Password = this.state.password.trim();
-        //var PasswordConfirm = this.state.passwordConfirm.trim();
-
-        //if (Email && Password && PasswordConfirm) {
-        //    var url = "/api/Account/Register";
-        //    var xhr = new XMLHttpRequest();
-        //    xhr.open("post", url);
-        //    xhr.setRequestHeader("Content-Type", "application/json;");
-        //    xhr.responseType = 'json';
-        //    xhr.onload = function () {
-        //        let content = xhr.response;
-        //        if (content.error)
-        //            alert(content.error);
-        //        else {
-        //            this.setState({ email: "", password: "", passwordConfirm: "" })
-        //            alert(content.message);
-        //            this.toggle();
-        //        }
-        //    }.bind(this);
-        //    xhr.send(JSON.stringify({ email: Email, password: Password, passwordConfirm: PasswordConfirm }));
-        //}
-        //else
-        //    alert("Заполните все поля!");
-
+    handleSubmit(e) { //обрабатываем клик на кнопку "добавить"
         e.preventDefault();
         var filmName = this.state.name.trim();
         var filmTiming = this.state.timing.trim();
@@ -74,31 +48,21 @@ export class ModalAdd extends React.Component {
         }
         this.props.onFilmSubmit({ name: filmName, description: filmDescription, timing: filmTiming, genreId: filmGenre, countryId: filmCountry, poster: filmPoster });
         this.setState({ name: "", timing: "", genreId: "", countryId: "", description: "", poster: "" });
-
-        //var xhr = new XMLHttpRequest();
-        //xhr.open("post", "/api/films/");
-        //xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-        //xhr.onload = function () {
-        //    this.loadData();
-        //}.bind(this);
-        //xhr.send(JSON.stringify({ name: filmName, genreId: filmGenre, timing: filmTiming, countryId: filmCountry, poster: filmPoster, description: filmDescription }));
         this.toggle();
     }
     // загрузка данных
     loadData() {
-        var xhr1 = new XMLHttpRequest();
+        var xhr1 = new XMLHttpRequest(); //получение списка стран
         xhr1.open("get", "/api/countries/", true);
         xhr1.onload = function () {
-            //console.log(xhr1.responseText);
             var data = JSON.parse(xhr1.responseText);
             this.setState({ countries: data });
         }.bind(this);
         xhr1.send();
 
-        var xhr2 = new XMLHttpRequest();
+        var xhr2 = new XMLHttpRequest(); //получение списка стран
         xhr2.open("get", "/api/genres/", true);
         xhr2.onload = function () {
-            //console.log(xhr2.responseText);
             var data = JSON.parse(xhr2.responseText);
             this.setState({ genres: data });
         }.bind(this);

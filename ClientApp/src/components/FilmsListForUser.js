@@ -1,17 +1,16 @@
 ﻿import React, { Component } from 'react';
-import ReactDOM from 'react-dom'
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 
-var selectedTickets = [];
+var selectedTickets = []; //выбранные билеты
 
-export class Place extends React.Component {
+export class Place extends React.Component { //класс места
 
     constructor(props) {
         super(props);
         this.state = { data: props.ticket, clicked: false };
         this.onClick = this.onClick.bind(this);
     }
-    onClick(e) {
+    onClick(e) { //при клике добавляем или удаляем билет из массива выбранных билетов и меняем состояние 
         e.preventDefault();
         this.setState({ clicked: !this.state.clicked });
         if (this.state.clicked == false)
@@ -24,7 +23,7 @@ export class Place extends React.Component {
         console.log(selectedTickets);
 
     }
-    render() {
+    render() { //в зависимости от статуса и состояния рендерим разное
         if (this.state.data.status == 0)
             return <button className="btn btn-warning" style={{ borderRadius: '20px', width: '40px', height: '40px', marginRight: '10px', marginBottom: '10px' }} disabled>{this.state.data.place}</button>
         else if (this.state.clicked == false)
@@ -34,7 +33,7 @@ export class Place extends React.Component {
     }
 }
 
-export class Row extends React.Component {
+export class Row extends React.Component { //класс ряда
 
     constructor(props) {
         super(props);
@@ -42,13 +41,13 @@ export class Row extends React.Component {
     }
     render() {
         return(
-            this.props.places.map(function (ticket) {
+            this.props.places.map(function (ticket) { //для каждого элемента ticket рендерим класс place 
                 return <Place ticket={ticket} />
             })
     )}
 }
 
-export class Film extends React.Component {
+export class Film extends React.Component { //класс фильма
 
     constructor(props) {
         super(props);
@@ -57,25 +56,25 @@ export class Film extends React.Component {
         this.handleSubmit = this.handleSubmit.bind(this);
         this.toggle = this.toggle.bind(this);
     }
-    toggle() {
+    toggle() { //изменяем состояние отвечающее за вывод модального окна
         this.setState({
             modal: !this.state.modal
         });
     }
-    handleSubmit(e) {
+    handleSubmit(e) { //обрабатываем клик на кнопку "забронировать билеты"
         e.preventDefault();
-        this.toggle();
+        this.toggle(); //скрываем модальное окно
         var xhr = new XMLHttpRequest();
-        xhr.open("post", "/api/booking/", true);
+        xhr.open("post", "/api/booking/", true); //отправляем запрос на бронирование
         xhr.setRequestHeader("Content-Type", "application/json");
         xhr.onload = function () {
             alert("Билеты успешно забронированы! :)")
         }.bind(this);
         xhr.send(JSON.stringify(selectedTickets));
     }
-    Tickets(session) {
+    Tickets(session) { 
         var alltickets;
-        var xhr = new XMLHttpRequest();
+        var xhr = new XMLHttpRequest(); //получаем все сеансы по запросу, ищем максимальный рад (количество рядов), заполняем массив рядов
         xhr.open("get", "/api/tickets/", true);
         xhr.onload = function () {
             var data = JSON.parse(xhr.responseText);
@@ -100,13 +99,11 @@ export class Film extends React.Component {
                 row = [];
             }
             this.setState({ tickets: rows });
-            console.log(rows);
-            console.log(max);
             this.toggle();
         }.bind(this);
         xhr.send();
     }
-    render() {
+    render() { //каждый фильм будет представлен таблицей с двумя столбиками
         var tickets = this.Tickets;
         return <div>
             <table className="table table-striped table-hover" id="filmsTable" style={{ fontFamily: 'Courier New' }}>
@@ -122,7 +119,7 @@ export class Film extends React.Component {
                         <h5>Хронометраж: {this.state.data.timing}</h5>
                         <p></p>
                         {
-                            this.props.sessions.map(function (session) {
+                            this.props.sessions.map(function (session) { //для каждого сеанса выводим номер зала, время и дату
                                 var hall = session.hallId + " зал";
                                 var data = session.time.split('T')[0];
                                 var time = session.time.split('T')[1];
@@ -147,7 +144,7 @@ export class Film extends React.Component {
                         <p align="center">--------------------------------------------------------</p>
                         <div className="justify-content-center">
                             {
-                                this.state.tickets.map(function (row) {
+                                this.state.tickets.map(function (row) { //для каждого элемента row рендерим класс row
                                     return <div><Row places={row} /></div>
                                 })
                                 
@@ -166,7 +163,7 @@ export class Film extends React.Component {
     }
 }
 
-export class FilmsListForUser extends React.Component {
+export class FilmsListForUser extends React.Component { //класс листа фильмов
 
     constructor(props) {
         super(props);
@@ -174,7 +171,7 @@ export class FilmsListForUser extends React.Component {
     }
     // загрузка данных
     loadData() {
-        var xhr = new XMLHttpRequest();
+        var xhr = new XMLHttpRequest(); //запрос на получение списка фильмов
         xhr.open("get", this.props.apiUrl, true);
         xhr.onload = function () {
             console.log(xhr.responseText);
@@ -183,7 +180,7 @@ export class FilmsListForUser extends React.Component {
         }.bind(this);
         xhr.send();
 
-        var xhr1 = new XMLHttpRequest();
+        var xhr1 = new XMLHttpRequest(); //запрос на получение всех стран
         xhr1.open("get", "/api/Countries/", true);
         xhr1.onload = function () {
             console.log(xhr1.responseText);
@@ -192,7 +189,7 @@ export class FilmsListForUser extends React.Component {
         }.bind(this);
         xhr1.send();
 
-        var xhr2 = new XMLHttpRequest();
+        var xhr2 = new XMLHttpRequest(); //запрос на получение всех жанров
         xhr2.open("get", "/api/Genres/", true);
         xhr2.onload = function () {
             console.log(xhr2.responseText);
@@ -201,7 +198,7 @@ export class FilmsListForUser extends React.Component {
         }.bind(this);
         xhr2.send();
 
-        var xhr3 = new XMLHttpRequest();
+        var xhr3 = new XMLHttpRequest(); //запрос на получение всех сеансов
         xhr3.open("get", "/api/Sessions/", true);
         xhr3.onload = function () {
             console.log(xhr3.responseText);
@@ -226,20 +223,20 @@ export class FilmsListForUser extends React.Component {
                             var mygenre, mycountry;
                             var sessionsoffilms = [];
                             var i = 0;
-                            for (i in mygenres) {
+                            for (i in mygenres) { //определяем жанр фильма
                                 if (mygenres[i].genreId == film.genreId)
                                     mygenre = mygenres[i].name;
                             }
                             i = 0;
-                            for (i in mycountries) {
+                            for (i in mycountries) { //определяем страну фильма
                                 if (mycountries[i].countryId == film.countryId)
                                     mycountry = mycountries[i].name;
                             }
                             i = 0;
-                            for (i in mysessions) {
+                            for (i in mysessions) { //ищем все сеансы фильма
                                 if (mysessions[i].filmId == film.filmId)
                                     sessionsoffilms.push(mysessions[i]);
-                            }
+                            }//для каждого элемента рендерим класс film
                             return <Film key={film.filmId} film={film} genre={mygenre} country={mycountry} sessions={sessionsoffilms} />
                         })
                     }

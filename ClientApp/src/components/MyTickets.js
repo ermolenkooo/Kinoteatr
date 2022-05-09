@@ -1,12 +1,12 @@
 ﻿import React, { Component } from 'react';
 
-export class Ticket extends React.Component {
+export class Ticket extends React.Component { //класс билета
 
     constructor(props) {
         super(props);
         this.state = { data: props.ticket };
     }
-    render() {
+    render() { //билет будет представлять из себя таблицу с двумя столбиками
         return <div>
             <table className="table table-striped table-hover" id="filmsTable" style={{ fontFamily: 'Courier New' }}>
                 <tr>
@@ -27,7 +27,7 @@ export class Ticket extends React.Component {
     }
 }
 
-export class MyTickets extends Component {
+export class MyTickets extends Component { //класс списка забронированных билетов
     static displayName = MyTickets.name;
 
     constructor(props) {
@@ -36,7 +36,7 @@ export class MyTickets extends Component {
     }
     // загрузка данных
     loadData() {
-        var xhr = new XMLHttpRequest();
+        var xhr = new XMLHttpRequest(); //получаем список фильмов
         xhr.open("get", "/api/films/", true);
         xhr.onload = function () {
             var data = JSON.parse(xhr.responseText);
@@ -44,7 +44,7 @@ export class MyTickets extends Component {
         }.bind(this);
         xhr.send();
 
-        var xhr1 = new XMLHttpRequest();
+        var xhr1 = new XMLHttpRequest(); //получаем список сеансов
         xhr1.open("get", "/api/sessions/", true);
         xhr1.onload = function () {
             console.log(xhr1.responseText);
@@ -53,7 +53,7 @@ export class MyTickets extends Component {
         }.bind(this);
         xhr1.send();
 
-        var xhr2 = new XMLHttpRequest();
+        var xhr2 = new XMLHttpRequest(); //получаем список билетов
         xhr2.open("get", "/api/tickets/", true);
         xhr2.onload = function () {
             console.log(xhr2.responseText);
@@ -62,22 +62,19 @@ export class MyTickets extends Component {
         }.bind(this);
         xhr2.send();
 
-        var url = "/api/Account/isAuthenticated";
+        var url = "/api/Account/isAuthenticated"; //определяем id пользователя
         var xhr3 = new XMLHttpRequest();
         xhr3.open("post", url, true);
         xhr3.onload = function () {
             var data = JSON.parse(xhr3.responseText);
             this.setState({ user: data.userId });
-            //window.location.reload();
         }.bind(this);
         xhr3.send();
-        //this.forceUpdate();
     }
     componentDidMount() {
         this.loadData();
     }
     render() {
-        //var mytickets = this.state.tickets;
         var myfilms = this.state.films;
         var mysessions = this.state.sessions;
         var user = this.state.user;
@@ -89,15 +86,15 @@ export class MyTickets extends Component {
                             var myfilm, mysession;
                             if (ticket.viewerId == user) {
                                 var i = 0;
-                                for (i in mysessions) {
+                                for (i in mysessions) { //определяем сеанс
                                     if (mysessions[i].sessionId == ticket.sessionId)
                                         mysession = mysessions[i];
                                 }
                                 i = 0;
-                                for (i in myfilms) {
+                                for (i in myfilms) { //определяем фильм
                                     if (myfilms[i].filmId == mysession.filmId)
                                         myfilm = myfilms[i];
-                                }
+                                } //для каждого элемента рендерим класс ticket
                                 return <Ticket ticket={ticket} film={myfilm} session={mysession} />
                             }
                         })

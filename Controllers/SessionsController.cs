@@ -1,13 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using BLL.Interfaces;
 using BLL.Models;
-using System;
-using DAL.Entities;
-using DAL.Repository;
 using BLL;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Logging;
@@ -16,20 +10,15 @@ namespace Kinoteatr.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class SessionsController : ControllerBase
+    public class SessionsController : ControllerBase //контроллер сеансов
     {
-        //IDbCrud crudServ;
-        /*private readonly*/
         IDbCrud crudServ;
         ILogger logger; // логгер
-        //private readonly FilmContext _context;
-        public SessionsController(/*DAL.Entities.FilmContext context*/ /*IDbCrud crudDb*/)
+        public SessionsController()
         {
-            //_context = context;
-            //crudServ = crudDb;
-            crudServ = new DbDataOperation(/*new DbReposSQL(context)*/);
+            crudServ = new DbDataOperation();
 
-            var loggerFactory = LoggerFactory.Create(builder =>
+            var loggerFactory = LoggerFactory.Create(builder => //логгирование
             {
                 builder.AddConsole();
             });
@@ -38,13 +27,12 @@ namespace Kinoteatr.Controllers
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetSession([FromRoute] int id)
+        public IActionResult GetSession([FromRoute] int id) //получение сеанса по id
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-            //var film = await _context.Film.SingleOrDefaultAsync(m => m.FilmId == id);
             var session = crudServ.GetSession(id);
             if (session == null)
             {
@@ -55,7 +43,7 @@ namespace Kinoteatr.Controllers
 
         [Authorize(Roles = "admin")]
         [HttpPost]
-        public IActionResult Create([FromBody] SessionModel session)
+        public IActionResult Create([FromBody] SessionModel session) //добавление нового сеанса
         {
             if (!ModelState.IsValid)
             {
@@ -68,7 +56,7 @@ namespace Kinoteatr.Controllers
 
         [Authorize(Roles = "admin")]
         [HttpPut("{id}")]
-        public IActionResult Update([FromRoute] int id, [FromBody] SessionModel session)
+        public IActionResult Update([FromRoute] int id, [FromBody] SessionModel session) //обновление сеанса
         {
             if (!ModelState.IsValid)
             {
@@ -88,7 +76,7 @@ namespace Kinoteatr.Controllers
 
         [Authorize(Roles = "admin")]
         [HttpDelete("{id}")]
-        public IActionResult Delete([FromRoute] int id)
+        public IActionResult Delete([FromRoute] int id) //удаление сеанса
         {
             if (!ModelState.IsValid)
             {
@@ -99,10 +87,9 @@ namespace Kinoteatr.Controllers
         }
 
         [HttpGet]
-        public IEnumerable<SessionModel> GetAllSessions()
+        public IEnumerable<SessionModel> GetAllSessions() //получение списка сеансов
         {
-            //return _context.Film.Include(s => s.Session);
-            return crudServ.GetAllSessions()/*.Select(i => new Film(i))*/;
+            return crudServ.GetAllSessions();
         }
     }
 }

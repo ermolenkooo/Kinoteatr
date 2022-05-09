@@ -1,41 +1,28 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using BLL.Interfaces;
 using BLL.Models;
-using System;
-using DAL.Entities;
-using DAL.Repository;
 using BLL;
-using Microsoft.AspNetCore.Authorization;
 
 namespace Kinoteatr.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class TicketsController : ControllerBase
+    public class TicketsController : ControllerBase //контроллер билетов
     {
-        //IDbCrud crudServ;
-        /*private readonly*/
         IDbCrud crudServ;
-        //private readonly FilmContext _context;
-        public TicketsController(/*DAL.Entities.FilmContext context*/ /*IDbCrud crudDb*/)
+        public TicketsController()
         {
-            //_context = context;
-            //crudServ = crudDb;
-            crudServ = new DbDataOperation(/*new DbReposSQL(context)*/);
+            crudServ = new DbDataOperation();
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetTicket([FromRoute] int id)
+        public IActionResult GetTicket([FromRoute] int id) //получение билета по id
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-            //var film = await _context.Film.SingleOrDefaultAsync(m => m.FilmId == id);
             var ticket = crudServ.GetTicket(id);
             if (ticket == null)
             {
@@ -44,9 +31,8 @@ namespace Kinoteatr.Controllers
             return Ok(ticket);
         }
 
-        //[Authorize(Roles = "admin")]
         [HttpPut("{id}")]
-        public IActionResult Update([FromRoute] int id, [FromBody] TicketModel ticket)
+        public IActionResult Update([FromRoute] int id, [FromBody] TicketModel ticket) //обновление билета
         {
             if (!ModelState.IsValid)
             {
@@ -68,10 +54,9 @@ namespace Kinoteatr.Controllers
         }
 
         [HttpGet]
-        public IEnumerable<TicketModel> GetAllTickets()
+        public IEnumerable<TicketModel> GetAllTickets() //получение списка билетов
         {
-            //return _context.Film.Include(s => s.Session);
-            return crudServ.GetAllTickets()/*.Select(i => new Film(i))*/;
+            return crudServ.GetAllTickets();
         }
     }
 }

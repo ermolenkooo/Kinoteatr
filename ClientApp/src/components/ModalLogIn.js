@@ -1,7 +1,7 @@
 ﻿import React from 'react';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 
-export class ModalLogIn extends React.Component {
+export class ModalLogIn extends React.Component { //класс модального окна авторизации
     constructor(props) {
         super(props);
         this.state = { modal: false, email: '', password: '' };
@@ -10,7 +10,6 @@ export class ModalLogIn extends React.Component {
         this.handleChangeEmail = this.handleChangeEmail.bind(this);
         this.handleChangePassword = this.handleChangePassword.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
-        this.LogOut = this.LogOut.bind(this);
         this.getCurrentUser = this.getCurrentUser.bind(this);
     }
 
@@ -32,11 +31,10 @@ export class ModalLogIn extends React.Component {
             let myObj = "";
             myObj = request.responseText !== "" ?
                 JSON.parse(request.responseText) : {};
-            //document.getElementById("msg").innerHTML = myObj.message;
         }.bind(this);
         request.send();
     }
-    handleSubmit(e) {
+    handleSubmit(e) { //обработка нажатия на кнопку "войти"
         e.preventDefault();
         var Email = this.state.email.trim();
         var Password = this.state.password.trim();
@@ -64,27 +62,11 @@ export class ModalLogIn extends React.Component {
         else
             alert("Заполните все поля!");
     }
-    LogOut() {
-        //e.preventDefault();
-        var request = new XMLHttpRequest();
-        request.open("POST", "api/account/logoff");
-        request.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-        request.responseType = 'json';
-        request.onload = function () {
-            let content = request.response;
-            alert(content.message);
-            this.getCurrentUser();
-            this.props.onCheck();
-        }.bind(this);
-        request.send();
-    }
 
     render() {
         return (
             <div>
-                {/*<div id="msg">Вы Гость. Пожалуйста, выполните вход.</div>*/}
                 <Button color="success" onClick={this.toggle} style={{ marginRight: '10px' }}>Войти</Button>
-                {/*<Button color="danger" onClick={this.LogOut}>Выйти</Button>*/}
                 <Modal isOpen={this.state.modal}>
                     <form onSubmit={this.handleSubmit}>
                         <ModalHeader><h5>Авторизация</h5></ModalHeader>

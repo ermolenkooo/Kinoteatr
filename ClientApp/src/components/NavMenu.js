@@ -4,10 +4,6 @@ import { Link } from 'react-router-dom';
 import './NavMenu.css';
 import { ModalComponent } from './ModalComponent';
 import { ModalLogIn } from './ModalLogIn';
-import { FilmsList } from './FilmsList';
-import { FilmsListForUser } from './FilmsListForUser';
-import { FilmsListBegin } from './FilmsListBegin';
-import { MyTickets } from './MyTickets';
 
 export class NavMenu extends Component {
     static displayName = NavMenu.name;
@@ -36,15 +32,6 @@ export class NavMenu extends Component {
                         <NavbarToggler onClick={this.toggleNavbar} className="mr-2" />
                         <Collapse className="d-sm-inline-flex flex-sm-row-reverse" isOpen={!this.state.collapsed} navbar>
                             <ul className="navbar-nav flex-grow">
-                                {/*<NavItem>*/}
-                                {/*    <NavLink tag={Link} className="text-dark" to="/">Home</NavLink>*/}
-                                {/*</NavItem>*/}
-                                {/*<NavItem>*/}
-                                {/*    <NavLink tag={Link} className="text-dark" to="/counter">Counter</NavLink>*/}
-                                {/*</NavItem>*/}
-                                {/*<NavItem>*/}
-                                {/*    <NavLink tag={Link} className="text-dark" to="/fetch-data">Fetch data</NavLink>*/}
-                                {/*</NavItem>*/}
                                 <LoginButton />
                             </ul>
                         </Collapse>
@@ -74,24 +61,10 @@ class LoginButton extends Component {
         xhr.onload = function () {
             var data = JSON.parse(xhr.responseText);
             this.setState({ role: data.role });
-            //window.location.reload();
         }.bind(this);
         xhr.send();
         this.forceUpdate();
-        //window.location.reload();
     }
-
-    //componentDidUpdate() {
-    //    var elem = document.getElementById('myList');
-    //    if (elem) {
-    //        if (this.state.role === "admin")
-    //            elem.innerHTML = '<FilmsList apiUrl="/api/films" />';
-    //        else
-    //            if (this.state.role === "user")
-    //                elem.innerHTML = '<FilmsListForUser apiUrl="/api/films" />';
-    //            else elem.innerHTML = '<FilmsListBegin apiUrl="/api/films" />';
-    //    }
-    //}
 
     componentDidMount() {
         this.CheckRole();
@@ -115,7 +88,6 @@ class LoginButton extends Component {
             return (
                 <>
                     <NavItem>
-                        {/*<NavLink tag={Link} className="text-dark" to="/login">¬ход</NavLink>*/}
                         <ModalLogIn onCheck={roles} />
                     </NavItem>
                     <NavItem>
